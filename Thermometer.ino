@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h> 
 
 //Access point credentials
-const char* ssid = "youaremoney";
-const char* pwd = "N289T17666A";
+const char* ssid = "insert your wifi name here";
+const char* pwd = "insert your password here";
 
 int sensor;
 float temperature, refvoltage, temp;
@@ -21,7 +21,6 @@ void setup() {
   pinMode(A0, INPUT);
   digitalWrite(ledPin, LOW);
 
- // analogReference(INTERNAL);
    refvoltage = 2.25;   //reference voltage for temperature calculation
         
   //connecting to wifi
@@ -41,13 +40,6 @@ void setup() {
 
     //while connected print this
     Serial.println("Wifi connected");
-
-     // Make a HTTP request:
-    //server.println("GET /search?q=arduino HTTP/1.1");
-    //server.println("Host: http://localhost/iotproject/show.php");
-   // client.println("Connection: close");
-    //client.println();
-      
 
     //starting the server
     server.begin();
@@ -75,7 +67,6 @@ void setup() {
     //Read the first line of the request
     String request = client.readStringUntil('\r');
     Serial.println(request);
-   // Serial.println(req);
     client.flush();
     
    int value = LOW; // set the thermometer off initially
@@ -88,16 +79,14 @@ void setup() {
         value = HIGH;
         sensor = analogRead(A0);
         temperature = (refvoltage * sensor * 100) / 1023; //converting degree to celcius
-        //client.println("Refresh: 5");
-        //temp = temperature;
-        //temperature = (sensor/1024.0)*5000;
-
+       
         //save the data to mysql, access the php file to write
       HTTPClient http;
       String url = "http://192.168.1.5/iotproject/thermotry/add.php?temp="+String(temp);
       Serial.println(url);     
       http.begin(url);
-
+       
+      //GET method
       int httpCode = http.GET();
       if(httpCode > 0){
           Serial.printf("[HTTP] GET...code: %d\n", httpCode);
@@ -116,7 +105,8 @@ void setup() {
       digitalWrite(ledPin, LOW);
       value = LOW;
       } 
-      temp = temperature;     //real temperature had to be multiplied with 2 to get correct value
+      temp = temperature; 
+    
       //Return the response
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/html");
@@ -134,7 +124,6 @@ void setup() {
       client.println("<!DOCTYPE HTML>");
       client.println("<html>");
       client.println("<body style=background-color:skyblue> </body>");
-      //client.println("<h2><img src="utu.png" alt="utu" <h2>style="width:304px;height:228px;">");
       client.println("<style> h1 {text-align: center}</style>");
       client.println("<style> h3 {text-align: center}</style>");
       client.println("<style> b {text-align: center}</style>");
@@ -198,17 +187,14 @@ void setup() {
         }
  
       client.println("<br><br>");
-      //client.println("<a <button>Thermometer On</button></a>");
+      //create buttons
       client.println("<a href=\"/Thermo=ON\"\"><button>Turn On Once </button></a>");
       client.println("<a href=\"/AlwaysOn\"\"><button>Keep It On </button></a>");
       client.println("<a href=\"/Thermo=OFF\"\"><button>Turn Off </button></a><br />");
       
       client.println("<h3>Check the Temperature records by following the below link: <h3>");
       client.println("<p>http://localhost/iotproject/Thermometer/show.php</p>");
-      //String urlshow = "http://192.168.1.5/iotproject/Thermometer/show.php";
-      //client.prin
-     // client.println("<a href="http://localhost/iotproject/Thermometer/show.php"> <button>TEMPERATURE DATABASE </button></a>");
-     
+      
       // if there are incoming bytes available from the server, read them and print them:
   if (client.available()) {
     char c = client.read();
