@@ -1,3 +1,4 @@
+-- Mysql, in mariadb, in xampp
 CREATE TABLE temps(
 	id int(11) NOT NULL,
     temp int(11) NOT NULL,
