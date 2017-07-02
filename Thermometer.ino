@@ -12,7 +12,8 @@ float temperature, refvoltage, temp;
 int ledPin = 13; //connected to pin 7 in nodemcu 1.0 esp-12e module
 WiFiServer server(80);  // open port 80 for server connection
 
-void setup() {
+void setup() 
+{
   Serial.begin(115200); //initialise the serial communication
   delay(10);
 
@@ -32,10 +33,11 @@ void setup() {
   WiFi.begin(ssid, pwd);
   
   //attempt to connect to wifi
-  while (WiFi.status() != WL_CONNECTED){
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(500);
     Serial.print("."); //progress with dots until the wifi is connected
-    }
+  }
     Serial.println("");
 
     //while connected print this
@@ -49,20 +51,23 @@ void setup() {
     Serial.print("This is your ip address: ");
     Serial.print("http://");
     Serial.print(WiFi.localIP());
-    Serial.println("/");
-  }
+    Serial.println("/");  
+}
 
-  void loop(){
+void loop()
+{
      WiFiClient client = server.available();
-    if (!client){
+    if (!client)
+    {
       return;
-      }
+    }
     
     //wait for the data to be sent from client
     Serial.println("New client connection");
-    while(!client.available()){
+    while(!client.available())
+    {
       delay(1);
-      }
+    }
 
     //Read the first line of the request
     String request = client.readStringUntil('\r');
@@ -74,44 +79,51 @@ void setup() {
    temperature = (refvoltage * sensor * 100) / 1023; //converting degree to celcius
    
     //check the index of the browser and act accordingly 
-    if (request.indexOf("/Thermo=ON") != -1) {
+    if (request.indexOf("/Thermo=ON") != -1) 
+    {
         digitalWrite(ledPin, HIGH);
         value = HIGH;
         sensor = analogRead(A0);
         temperature = (refvoltage * sensor * 100) / 1023; //converting degree to celcius
        
         //save the data to mysql, access the php file to write
-      HTTPClient http;
-      String url = "http://192.168.1.5/iotproject/thermotry/add.php?temp="+String(temp);
-      Serial.println(url);     
-      http.begin(url);
+        HTTPClient http;
+        String url = "http://192.168.1.5/iotproject/thermotry/add.php?temp="+String(temp);
+        Serial.println(url);     
+        http.begin(url);
        
-      //GET method
-      int httpCode = http.GET();
-      if(httpCode > 0){
+        //GET method
+        int httpCode = http.GET();
+        if(httpCode > 0)
+        {
           Serial.printf("[HTTP] GET...code: %d\n", httpCode);
-          if(httpCode == HTTP_CODE_OK){
+          if(httpCode == HTTP_CODE_OK)
+          {
               String payload = http.getString();
               Serial.println(payload);
-            }
-        }else{
-            Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
           }
+       }
+       else
+       {
+            Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+       }
           http.end();
           delay(3000);
-      }
+   }
 
-    if (request.indexOf("/Thermo=OFF") != -1){
+    if (request.indexOf("/Thermo=OFF") != -1)
+    {
       digitalWrite(ledPin, LOW);
       value = LOW;
-      } 
+    } 
       temp = temperature; 
     
       //Return the response
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/html");
 
-      if (request.indexOf("/AlwaysOn") != -1) {
+      if (request.indexOf("/AlwaysOn") != -1) 
+      {
         digitalWrite(ledPin, HIGH);
         value = HIGH;
         sensor = analogRead(A0);
@@ -142,7 +154,8 @@ void setup() {
       //client.print("<br>");
       
       client.print("<h3>Thermometer's current status: </h3>");
-      if(request.indexOf("/AlwaysOn") != -1){
+      if(request.indexOf("/AlwaysOn") != -1)
+      {
         client.print("<h3>Always On<h3>");
         client.print("(Temperature updated every 5 seconds.)");
         client.println("<h3>Current Temperature: <h3>");
@@ -157,34 +170,40 @@ void setup() {
 
       //using GET method to write to sql
       int httpCode = http.GET();
-      if(httpCode > 0){
+      if(httpCode > 0)
+      {
           Serial.printf("[HTTP] GET...code: %d\n", httpCode);
-          if(httpCode == HTTP_CODE_OK){
+            if(httpCode == HTTP_CODE_OK)
+            {
               String payload = http.getString();
               Serial.println(payload);
             }
-        }else{
+      }
+         else
+         {
             Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-          }
+         }
           http.end();
        //delay(3000);
-        }
+    }
         
-     else if(value == HIGH) {
+     else if(value == HIGH)
+     {
           client.print("<h3>On Once<h3>");
           //client.println("<br>");
           client.println("<h3>Current Temperature: <h3>");
           client.print(temp);
           client.print("<b> deg C.</b>");
           //delay(100);
-        }
-      else if(value == LOW){
+      }
+      else if(value == LOW)
+      {
           client.print("<h3>Off<h3>");
          // client.println("<br>"); 
           client.println("<h3>Last measured temperature: <h3>"); //print the last value of temp
           client.print(temp);
           client.print("<b> deg C.</b>");
-        }
+      }
  
       client.println("<br><br>");
       //create buttons
@@ -196,10 +215,11 @@ void setup() {
       client.println("<p>http://localhost/iotproject/Thermometer/show.php</p>");
       
       // if there are incoming bytes available from the server, read them and print them:
-  if (client.available()) {
-    char c = client.read();
-    client.print(c);
-  }
+     if (client.available()) 
+     {
+       char c = client.read();
+       client.print(c);
+     }
   
       client.println("</html>");
       
@@ -207,6 +227,6 @@ void setup() {
       delay(1);
       Serial.println("Client disconnected!");
       Serial.println("");
-    }
+}
     
    
